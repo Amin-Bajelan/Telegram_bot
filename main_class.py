@@ -1,10 +1,10 @@
 import threading
 
 import telebot
+from telebot import types
 import requests
 import price_of_cryptocurrency
 import time
-
 
 import api_key
 
@@ -12,6 +12,7 @@ bot = telebot.TeleBot(token=api_key.API_telegram, parse_mode=None)
 
 running = False
 user_stat = False
+
 
 def send_hello(chat_id):
     global running
@@ -41,9 +42,6 @@ def stop(message):
                                           f"/live_price_loop /live_price_special_cryptocurrency")
 
 
-
-
-
 @bot.message_handler(commands=['live_price_special_cryptocurrency'])
 def start_loop(message):
     bot.reply_to(message, "Please enter name of your cryptocurrency like(btc ton xrp)")
@@ -51,21 +49,30 @@ def start_loop(message):
     user_stat = True
 
 
-@bot.message_handler(
-    commands=['start', 'help', 'info', 'live_price', 'live_price_loop', 'stop', 'live_price_special_cryptocurrency'])
+@bot.message_handler(['start'])
 def send_welcome(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=7)
+    btn_live_price = types.KeyboardButton('live_price')
+    btn_live_price_loop = types.KeyboardButton('live price loop')
+    btn_info = types.KeyboardButton('info')
+    btn_help = types.KeyboardButton('help')
+
+    markup.add(btn_live_price_loop, btn_live_price, btn_info, btn_help)
     if message.text == '/start':
         bot.reply_to(message,
                      f"Hello 🗿,\nThis robot is designed to see the current prices of cryptocurrencies.\n\nYou can see "
                      f"list of the top 24 currencies on market\nOR\nenter "
                      f"your currency name like ( btc ton xrp )\n\n /live_price   "
                      f"/help   /info    /live_price_loop    /live_price_special_cryptocurrency\n\nor you can enter name:")
-    elif message.text == '/live_price':
+
+
+
+    elif message.text == 'live_price':
         bot.reply_to(message, f"LIST:\n{price_of_cryptocurrency.my_str}")
-    elif message.text == '/help':
+    elif message.text == 'help':
         bot.reply_to(message, f"option:\n/start\t/info  /live_price  /live_price_loop  "
                               f"/live_price_special_cryptocurrency")
-    elif message.text == '/info':
+    elif message.text == 'info':
         bot.reply_to(message, f"This bot created by: Mohammad Amin Bajelan\n"
 
                               f"with Telegram api.")
@@ -84,7 +91,8 @@ def echo_all(message):
             token_price = str("{:.3f}".format(round(token_price, 4)))
 
             time.sleep(1)
-            bot.send_message(message.chat.id, f"Current price of {name_of_token} equal:\n\n{name_of_token}   {token_price}\nfor stop loop enter /break")
+            bot.send_message(message.chat.id,
+                             f"Current price of {name_of_token} equal:\n\n{name_of_token}   {token_price}\nfor stop loop enter /break")
             time.sleep(10)
 
     elif int(response.status_code) >= 400:
