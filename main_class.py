@@ -1,18 +1,52 @@
+# timedelta
 import telebot
 from telebot import types
-import price_of_cryptocurrency
-import requests
-import threading
-
+import datetime
 import api_key
 import time
-
-running = False
-user_state = False
-time_loop = float
+import requests
+import price_of_cryptocurrency
 
 TOKEN = api_key.API_telegram
 bot = telebot.TeleBot(TOKEN)
+
+continue_state = True
+flag = True
+
+
+def stop_loop():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+    btn_stop = types.KeyboardButton('Stop')
+    markup.add(btn_stop)
+    return markup
+
+
+def create_button_cryptocurrency_name():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    btn_btc = types.KeyboardButton('BTC')
+    btn_eth = types.KeyboardButton('ETH')
+    btn_ltc = types.KeyboardButton('LTC')
+    btn_xrp = types.KeyboardButton('XRP')
+    btn_bch = types.KeyboardButton('BCH')
+    btn_bnb = types.KeyboardButton('BNB')
+    btn_eos = types.KeyboardButton('EOS')
+    btn_xlm = types.KeyboardButton('XLM')
+    btn_etc = types.KeyboardButton('ETC')
+    btn_trx = types.KeyboardButton('TRX')
+    btn_cancel = types.KeyboardButton('Cancel')
+    markup.add(btn_btc, btn_eth, btn_ltc, btn_xrp, btn_bch, btn_bnb, btn_eos, btn_xlm, btn_etc, btn_trx, btn_cancel)
+    return markup
+
+
+def create_button_time():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    btn_5 = types.KeyboardButton('5')
+    btn_15 = types.KeyboardButton('15')
+    btn_30 = types.KeyboardButton('30')
+    btn_60 = types.KeyboardButton('60')
+    btn_cancel = types.KeyboardButton('Cancel')
+    markup.add(btn_5, btn_15, btn_30, btn_60, btn_cancel)
+    return markup
 
 
 def create_start_button():
@@ -28,39 +62,11 @@ def create_start_button():
     return markup
 
 
-def break_loop():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-    btn_break = types.KeyboardButton('Break loop')
-    markup.add(btn_break)
-    return markup
-
-
-def send_hello(chat_id):
-    global running
-    while running:
-        prices = price_of_cryptocurrency.send_pricecryptocurrency_price()
-        bot.send_message(chat_id, f"LIST:\n{prices}\n\nIf you want to stop Loop press button break")
-        time.sleep(5)
-
-
-
-@bot.message_handler(commands=['break'])
-def stop(message):
-    global user_stat
-    global running
-    user_stat = False
-    if running:
-        running = False
-        bot.send_message(message.chat.id, f"The loop stopped\nOption: /start   /help   /info   /live_price  "
-                                          f"/live_price_loop /live_price_special_cryptocurrency",reply_markup=create_start_button())
-
-
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn_start = types.KeyboardButton('start menu')
-    btn_live_price = types.KeyboardButton('live price'
-                                          '')
+    btn_live_price = types.KeyboardButton('live price')
     btn_live_price_loop = types.KeyboardButton('live price loop')
     btn_help = types.KeyboardButton('help')
     btn_info = types.KeyboardButton('info')
@@ -76,67 +82,55 @@ def send_welcome(message):
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
-    global user_state
+    global check_name
+    global check_time
+    global timer_for_loop
+    global continue_state
+
     if message.text == 'start menu':
         bot.send_message(message.chat.id, f"Hello 🗿,\nThis robot is designed to see the current prices of "
                                           f"cryptocurrencies.\n\nYou can see "
                                           f"list of the top 24 currencies on market by live price button\nOR\nenter "
                                           f"your currency name like ( btc ton xrp )\n\n")
 
+    elif message.text == 'Cancel':
+        bot.send_message(message.chat.id, text="You back to default state: ", reply_markup=create_start_button())
+
     elif message.text == 'live price':
-        # markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        # button3 = types.KeyboardButton('دکمه 3')
-        # button4 = types.KeyboardButton('دکمه 4')
-        # button5 = types.KeyboardButton('دکمه 5')
-        # markup.add(button3, button4, button5)
-        prices = price_of_cryptocurrency.send_pricecryptocurrency_price()
+        prices = price_of_cryptocurrency.send_cryptocurrency_price()
         bot.send_message(message.chat.id, f"LIST:\n{prices}")
 
     elif message.text == 'help':
-        bot.reply_to(message, f"option:\n/start\t/info  /live_price  /live_price_loop  "
-                              f"/live_price_special_cryptocurrency")
+        bot.send_message(message.chat.id, f"option:\n/start\t/info  /live_price  /live_price_loop  "
+                                          f"/live_price_special_cryptocurrency")
     elif message.text == 'info':
         bot.send_message(message.chat.id, text=f"This bot created by: Mohammad Amin Bajelan\n\nwith Telegram api.")
 
     elif message.text == 'live price loop':
-        global running
-        if not running:
-            running = True
-            bot.send_message(message.chat.id, "Start loop.", reply_markup=break_loop())
-            thread = threading.Thread(target=send_hello, args=(message.chat.id,))
-            thread.start()
-    elif message.text == 'Break loop':
-        stop(message)
+        bot.send_message(message.chat.id, text=f"Please select time of your cryptocurrency loop: ",
+                         reply_markup=create_button_time())
+
+
+    elif message.text == 'Stop':
+        create_start_button()
 
     elif message.text == 'live price special cryptocurrency':
-        bot.send_message(message.chat.id, text='Please entre name of your cryptocurrency like(btc ton xrp)',
-                         reply_markup=break_loop())
-        user_state = True
+        bot.send_message(message.chat.id, text=f"Please enter your cryptocurrency symbol like ( btc ton xrp ):",
+                         reply_markup=create_button_cryptocurrency_name())
 
-    else:
+
+    elif message.text.isdigit() == True:
+
+
+    if continue_state == True:
         name_of_token = str(message.text).upper()
         my_url = api_key.send_url(message)
         response = requests.get(url=my_url)
-
-        if int(response.status_code) == 200 and user_state:
-            bot.send_message(message, text="Your loop started.", reply_markup=break_loop())
-            while user_state:
-                token_price = float(response.json()['price'])
-                token_price = str("{:.3f}".format(round(token_price, 4)))
-
-                time.sleep(1)
-                bot.send_message(message.chat.id,
-                                 f"Current price of {name_of_token} equal:\n\n{name_of_token}   {token_price}\nfor "
-                                 f"stop loop enter /break")
-                time.sleep(10)
-
-        elif int(response.status_code) >= 400:
-            bot.reply_to(message, f"Something went wrong or this name is not dedicated 😢")
-        else:
-            token_price = float(response.json()['price'])
-            token_price = str("{:.3f}".format(round(token_price, 4)))
-            bot.reply_to(message, f"Current price of {name_of_token} equal:\n\n{name_of_token}   {token_price}")
-            print(f"{message}   {token_price}")
+        token_price = float(response.json()['price'])
+        token_price = str("{:.3f}".format(round(token_price, 4)))
+        bot.send_message(message.chat.id,
+                         f"Current price of {name_of_token} equal:\n\n{name_of_token}  {token_price}\nfor "
+                         f"stop loop enter /break")
 
 
 bot.polling()

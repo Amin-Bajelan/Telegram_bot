@@ -3,7 +3,7 @@ import requests
 import json
 
 
-def send_pricecryptocurrency_price():
+def send_cryptocurrency_price():
     my_url = api_key.url_coinmarketcap
     my_json = requests.get(my_url, params=api_key.parameters, headers=api_key.headers).json()
     my_str = ''
