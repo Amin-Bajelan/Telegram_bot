@@ -2,42 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Telegram Bot README</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2em;
-      background-color: #f4f4f4;
-      color: #333;
-    }
-    h1, h2 {
-      color: #2c3e50;
-    }
-    code {
-      background-color: #eee;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    pre {
-      background-color: #eee;
-      padding: 1em;
-      border-radius: 4px;
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1em;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 0.75em;
-      text-align: left;
-    }
-    th {
-      background-color: #ddd;
-    }
-  </style>
+
 </head>
 <body>
 
