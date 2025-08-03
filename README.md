@@ -5,7 +5,6 @@
 
 </head>
 <body>
-
   <h1>🤖 Telegram Bot</h1>
   <p>This project is a simple and extendable Telegram bot built using the powerful <code>python-telegram-bot</code> library. It receives messages from users and replies automatically.</p>
 
